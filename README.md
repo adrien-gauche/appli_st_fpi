@@ -1,10 +1,10 @@
 # Application de prédiction des exacerbations
-Dans le cadre de FPI
+
+Voir l'application ici: https://fpi-appli.onrender.com/
 
 ```bash
 python run.py
 ```
-
 
 ## Build
 
