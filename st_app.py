@@ -1,6 +1,7 @@
 import streamlit as st
-from functions import *
 from pygwalker.api.streamlit import StreamlitRenderer
+
+from functions import *
 
 st.set_page_config(page_title="Analyses des données FPI", page_icon="📈", layout="wide")
 
@@ -61,7 +62,7 @@ if uploaded_file is not None:
 
         if sb_mode == options_vues["accueil"]:
             st.title(
-                f"Accueil Application d'analyses et de prédictions des exacerbations FPI"
+                "Accueil Application d'analyses et de prédictions des exacerbations FPI"
             )
 
             accueil()
@@ -73,7 +74,7 @@ if uploaded_file is not None:
                 """
             )
             analyze_dataframe(df)
-            
+
         elif sb_mode == options_vues["distribution"]:
             st.title(options_vues["forme"])
 
@@ -100,7 +101,7 @@ if uploaded_file is not None:
                 st.write(df_y_quali_X_quanti)
 
                 plot_numerical_data_streamlit(df, sb_var_to_plot)
-                
+
         elif sb_mode == options_vues["repartition"]:
             st.title(options_vues["forme"])
 
@@ -111,7 +112,6 @@ if uploaded_file is not None:
             )
 
             if sb_var_to_plot is not None:
-
                 st.header(
                     f"Variables catégorielles suivant la variable catégorielle {sb_var_to_plot}"
                 )
@@ -145,19 +145,18 @@ if uploaded_file is not None:
 
         elif sb_mode == options_vues["pred"]:
             st.title(options_vues["pred"])
-            
-            prediction_window()
 
+            prediction_window()
 
     else:
         st.error("Le fichier Excel n'a pas de feuilles ou est corrompu.")
 
 else:
-    st.title(f"Accueil Application d'analyses et de prédictions des exacerbations FPI")
+    st.title("Accueil Application d'analyses et de prédictions des exacerbations FPI")
 
     st.info("Veuillez charger un fichier Excel à gauche pour continuer.")
 
     accueil()
-    
+
     st.title(options_vues["pred"])
     prediction_window()
