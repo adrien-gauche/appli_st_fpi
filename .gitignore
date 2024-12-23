@@ -135,6 +135,5 @@ learntools/
 *.feather
 *.parquet
 
-*.txt
 *.pdf
 *.png

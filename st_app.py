@@ -1,6 +1,8 @@
 import streamlit as st
 from pygwalker.api.streamlit import StreamlitRenderer
 
+import scipy.stats as stats
+
 from functions import *
 
 st.set_page_config(page_title="Analyses des données FPI", page_icon="📈", layout="wide")

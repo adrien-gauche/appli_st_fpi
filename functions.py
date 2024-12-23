@@ -9,6 +9,7 @@ import seaborn as sns
 import streamlit as st
 from sklearn.compose import make_column_selector
 
+
 pd.set_option("future.no_silent_downcasting", True)
 
 
@@ -401,8 +402,8 @@ def test_y_quali_X_quanti(df: pd.DataFrame, _test_stat, target_col: str, alpha=0
         _type_: _description_
     """
     # Séparation des données en fonction de la colonne cible
-    positive_df = df[df[target_col] is True]
-    negative_df = df[df[target_col] is False]
+    positive_df = df[df[target_col]] # True
+    negative_df = df[~df[target_col]] # False
 
     # Échantillonnage équilibré du groupe négatif pour avoir la même taille que le groupe positif
     balanced_neg = negative_df.sample(positive_df.shape[0])
@@ -526,9 +527,6 @@ def accueil():
         * Sélectionner et croiser les variables selon vos besoins
         * Personnaliser les options d'affichage
         
-        ## 📉 Prédictions des exacerbations FP
-        Ci-dessous, vous pouvez saisir les données d'un patient pour prédire le risque d'exacerbations de la FPI.
-        
         """
     )
 
@@ -620,7 +618,11 @@ def prediction_window() -> None:
         use_container_width=True,
     )
 
-    st.header("Prédictions du risque d'exacerbations FPI")
+    st.markdown(
+    """
+    ## 🤖 Prédictions des exacerbations FPI
+    """
+    )
     if st.button("Prédire", key="predict"):
         # Vérifier si les données sont valides (sans NaN)
         if edited_df.isnull().values.all():
