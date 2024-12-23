@@ -1,9 +1,20 @@
+import scipy.stats as stats
 import streamlit as st
 from pygwalker.api.streamlit import StreamlitRenderer
 
-import scipy.stats as stats
-
-from functions import *
+#from functions import *
+from functions import (
+    accueil,
+    analyze_dataframe,
+    clean_data,
+    get_sheet_names,
+    load_pandas_data,
+    plot_crosstab_streamlit,
+    plot_numerical_data_streamlit,
+    prediction_window,
+    test_y_quali_X_quali,
+    test_y_quali_X_quanti,
+)
 
 st.set_page_config(page_title="Analyses des données FPI", page_icon="📈", layout="wide")
 
@@ -11,10 +22,10 @@ st.set_page_config(page_title="Analyses des données FPI", page_icon="📈", lay
 
 options_vues = {
     "accueil": "Accueil",
-    "forme": "Analyse de forme des données",
+    "forme": "Forme des données",
     "distribution": "Distribution variables continues",
     "repartition": "Répartition variables catégorielles",
-    "libres": "Analyses libres",
+    "libres": "Affichages libres",
     "pred": "Prédictions FPI",
 }
 

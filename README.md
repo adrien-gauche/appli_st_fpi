@@ -2,7 +2,7 @@
 Dans le cadre de FPI
 
 ```bash
-python -m streamlit run app.py
+python run.py
 ```
 
 
@@ -17,4 +17,8 @@ pyinstaller run.spec --clean
 
 ```bash
 conda env create -f environment.yaml
+```
+
+```bash
+conda remove -n ENV_NAME --all
 ```

@@ -632,10 +632,13 @@ def prediction_window() -> None:
                 df_pred = predict_fpi(edited_df)
                 st.success("Prédictions effectuées avec succès !")
 
-                for i, prob in enumerate(df_pred[:, 1]):
-                    st.write(
-                        f"Patient {i + 1}: **{prob * 100:.2f}%** probabilité d'exacerbation FPI"
-                    )
+                #for i, prob in enumerate(df_pred[:, 1]):
+                #    st.write(
+                #        f"Patient {i + 1}: **{prob * 100:.2f}%** probabilité d'exacerbation FPI"
+                #    )
+                st.write(
+                    f"##### Probabilité **{df_pred[0, 1] * 100:.2f}%** d'exacerbation FPI"
+                )
 
             except Exception as e:
                 st.error(f"Une erreur est survenue lors de la prédiction : {e}")
@@ -653,8 +656,13 @@ def prediction_window() -> None:
             "assets/exacerbations/features_importances.png",
             caption="Importance des features",
         )
+        
     except Exception as e:
-        st.error(f"Erreur lors de l'affichage de l'image : {e}")
+        #st.error(f"Erreur lors de l'affichage de l'image : {e}")
+        st.image(
+        "https://adrien-gauche.github.io/portfolio/assets/exacerbations/features_importances.png",
+        caption="Importance des features",
+        )
 
     st.markdown(
         """
@@ -668,7 +676,11 @@ def prediction_window() -> None:
             "assets/exacerbations/precision_threshold.png", caption="Seuil de précision"
         )
     except Exception as e:
-        st.error(f"Erreur lors de l'affichage de l'image : {e}")
+        #st.error(f"Erreur lors de l'affichage de l'image : {e}")
+        st.image(
+            "https://adrien-gauche.github.io/portfolio/assets/exacerbations/precision_threshold.png",
+            caption="Importance des features",
+        )
 
     st.markdown(
         """
@@ -680,4 +692,8 @@ def prediction_window() -> None:
     try:
         st.image("assets/exacerbations/ROC.png", caption="Courbe ROC")
     except Exception as e:
-        st.error(f"Erreur lors de l'affichage de l'image : {e}")
+        #st.error(f"Erreur lors de l'affichage de l'image : {e}")
+        st.image(
+            "https://adrien-gauche.github.io/portfolio/assets/exacerbations/ROC.png",
+            caption="Importance des features",
+        )
