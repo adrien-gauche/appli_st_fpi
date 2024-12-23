@@ -7,7 +7,6 @@ from sklearn.compose import make_column_selector
 import re
 
 import plotly.express as px
-from scipy import stats
 import joblib
 
 pd.set_option("future.no_silent_downcasting", True)
@@ -554,3 +553,118 @@ def predict_fpi(df):
     y_pred_proba = model.predict_proba(df)
 
     return y_pred_proba
+
+def prediction_window() -> None:
+            selected_features = [
+                "BAI",
+                "Charlson (formule, non ajusté âge)",
+                "IDM 0/1",
+                "Taille (m)",
+                "Dyspnée NYHA (0 à 4)",
+                "PA (uniquement si tabac)",
+            ]
+
+            st.header("Saisie des données")
+
+            # Initialisation du DataFrame éditable avec colonnes numériques par défaut
+            df_editable = pd.DataFrame(
+                data={col: pd.Series(dtype=float) for col in selected_features},
+                index=range(1),
+            )
+
+            # Configuration des colonnes en fonction de leurs types
+            column_config = {
+                "BAI": st.column_config.NumberColumn(
+                    "BAI",
+                    format="%.2f",
+                    min_value=0,
+                    max_value=100,  # Ajustez selon la plage attendue
+                ),
+                "Charlson (formule, non ajusté âge)": st.column_config.NumberColumn(
+                    "Charlson (formule, non ajusté âge)",
+                    format="%.2f",
+                    min_value=0,
+                    help="Indice de comorbidité de Charlson non ajusté à l'âge."
+                ),
+                "IDM 0/1": st.column_config.NumberColumn(
+                    "IDM 0/1",
+                    format="%.0f",
+                    min_value=0,
+                    max_value=1,  # Valeurs binaires
+                    help="Indicateur binaire : 0 pour absence, 1 pour présence d'infarctus du myocarde."
+                ),
+                "Taille (m)": st.column_config.NumberColumn(
+                    "Taille (m)",
+                    format="%.2f",
+                    min_value=1.0,
+                    max_value=2.5,  # Taille humaine réaliste
+                    help="Taille en mètres (valeurs entre 1.0 et 2.5)."
+                ),
+                "Dyspnée NYHA (0 à 4)": st.column_config.NumberColumn(
+                    "Dyspnée NYHA (0 à 4)",
+                    format="%.0f",
+                    min_value=0,
+                    max_value=4,  # Scores de 0 à 4
+                    help="Score NYHA (0 : pas de dyspnée, 4 : dyspnée sévère)."
+                ),
+                "PA (uniquement si tabac)": st.column_config.NumberColumn(
+                    "PA (uniquement si tabac)",
+                    format="%.2f",
+                    min_value=0,
+                    max_value=100,  # Ajustez selon les données attendues
+                    help="Nombre de paquets-années, uniquement si le patient est fumeur."
+                ),
+            }
+
+            # Éditeur Streamlit avec configuration des colonnes
+            edited_df = st.data_editor(
+                df_editable,
+                #num_rows="dynamic",
+                column_config=column_config,
+                use_container_width=True,
+            )
+
+            st.header("Prédictions du risque d'exacerbations FPI")
+            if st.button("Prédire", key="predict"):
+                # Vérifier si les données sont valides (sans NaN)
+                if edited_df.isnull().values.all():
+                    st.error("Veuillez remplir les colonnes avant de prédire.")
+                else:
+
+                    try:
+                        df_pred = predict_fpi(edited_df)
+                        st.success("Prédictions effectuées avec succès !")
+                        
+                        for i, prob in enumerate(df_pred[:, 1]):
+                            st.write(f"Patient {i + 1}: **{prob * 100:.2f}%** probabilité d\'exacerbation FPI")
+                        
+                    except Exception as e:
+                        st.error(f"Une erreur est survenue lors de la prédiction : {e}")
+                        
+            st.markdown("### Explication du modèle")
+            st.markdown(
+                """
+                - **Importance des variables** : Le score de dyspnée NYHA (essoufflement) et l'indice de comorbidité de Charlson jouent un rôle déterminant dans la prédiction des exacerbations. Par conséquent, ces deux indices déjà utilisés sont pertinents pour anticiper les exacerbations. Ce modèle affine légèrement la prédiction.
+                
+                La figure illustre la contribution des variables du modèle pour ajuster la valeur de base (moyenne calculée sur l'ensemble du jeu de données d'entraînement) vers la valeur prédite pour un exemple donné. Les variables qui augmentent la prédiction sont représentées en rouge tandis que celles qui la diminuent sont en bleu ([lien article](https://www.nature.com/articles/s42256-019-0138-9.epdf) ).
+                """
+            )
+            st.image("assets/exacerbations/features_importances.png", caption="Importance des features")
+
+            st.markdown(
+                """
+                - **Seuil de précision** : Le seuil de précision à 50% est correct pour éviter trop de faux positifs et négatifs.
+                
+                Une précision élevée est obtenue avec peu de faux positifs dans les résultats prédits, et un rappel (recall) élevé est obtenu en ayant peu de faux négatifs [explication sklearn](https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html).
+                """
+            )
+            st.image("assets/exacerbations/precision_threshold.png", caption="Seuil de précision")
+
+            st.markdown(
+                """
+                - **Courbe Receiver Operating Characteristic (ROC)** : Le modèle prédit correctement les vrais positifs et négatifs.
+                
+                La courbe ROC, est un graphique qui illustre les performances d'un système de classification binaire lorsque son seuil de discrimination varie. Elle est créée en traçant la fraction des vrais positifs parmi les positifs (TPR = taux de vrais positifs) par rapport à la fraction des faux positifs parmi les négatifs (FPR = taux de faux positifs), à différents seuils [explication ROC](https://scikit-learn.org/stable/modules/model_evaluation.html#receiver-operating-characteristic-roc)
+                """
+            )
+            st.image("assets/exacerbations/ROC.png", caption="Courbe ROC")

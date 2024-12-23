@@ -145,86 +145,9 @@ if uploaded_file is not None:
 
         elif sb_mode == options_vues["pred"]:
             st.title(options_vues["pred"])
+            
+            prediction_window()
 
-            selected_features = [
-                "BAI",
-                "Charlson (formule, non ajusté âge)",
-                "IDM 0/1",
-                "Taille (m)",
-                "Dyspnée NYHA (0 à 4)",
-                "PA (uniquement si tabac)",
-            ]
-
-            st.header("Saisie des données")
-
-            # Nombre de lignes dynamiques
-            num_rows = st.number_input(
-                "Nombre de patients", min_value=1, value=1, step=1
-            )
-
-            # Initialisation du DataFrame éditable avec colonnes numériques par défaut
-            df_editable = pd.DataFrame(
-                data={col: pd.Series(dtype=float) for col in selected_features},
-                index=range(num_rows),
-            )
-
-            # Configuration des colonnes en fonction de leurs types
-            column_config = {
-                "BAI": st.column_config.NumberColumn(
-                    "BAI",
-                    format="%.2f",
-                    min_value=0,
-                    max_value=100,  # Ajustez selon la plage attendue
-                ),
-                "Charlson (formule, non ajusté âge)": st.column_config.NumberColumn(
-                    "Charlson (formule, non ajusté âge)",
-                    format="%.2f",
-                    min_value=0,
-                ),
-                "IDM 0/1": st.column_config.NumberColumn(
-                    "IDM 0/1",
-                    format="%.0f",
-                    min_value=0,
-                    max_value=1,  # Valeurs binaires
-                ),
-                "Taille (m)": st.column_config.NumberColumn(
-                    "Taille (m)",
-                    format="%.2f",
-                    min_value=1.0,
-                    max_value=2.5,  # Taille humaine réaliste
-                ),
-                "Dyspnée NYHA (0 à 4)": st.column_config.NumberColumn(
-                    "Dyspnée NYHA (0 à 4)",
-                    format="%.0f",
-                    min_value=0,
-                    max_value=4,  # Scores de 0 à 4
-                ),
-                "PA (uniquement si tabac)": st.column_config.NumberColumn(
-                    "PA (uniquement si tabac)",
-                    format="%.2f",
-                    min_value=0,
-                    max_value=100,  # Ajustez selon les données attendues
-                ),
-            }
-
-            # Éditeur Streamlit avec configuration des colonnes
-            edited_df = st.data_editor(
-                df_editable,
-                num_rows="dynamic",
-                column_config=column_config,
-            )
-
-            st.header("Prédictions du risque d'exacerbations FPI")
-            if st.button("Prédire", key="predict"):
-                # Vérifier si les données sont valides (sans NaN)
-                if edited_df.isnull().values.any():
-                    st.error("Veuillez remplir toutes les colonnes avant de prédire.")
-                else:
-                    # Appel de la fonction de prédiction
-                    edited_df = edited_df.dropna()
-                    print(edited_df)
-                    df_pred = predict_fpi(edited_df)
-                    st.write("Résultats des prédictions :", df_pred)
 
     else:
         st.error("Le fichier Excel n'a pas de feuilles ou est corrompu.")
@@ -235,3 +158,6 @@ else:
     st.info("Veuillez charger un fichier Excel à gauche pour continuer.")
 
     accueil()
+    
+    st.title(options_vues["pred"])
+    prediction_window()
