@@ -66,7 +66,7 @@ def analyze_dataframe(df, missing_percent_threshold=1):
         # Display statistical details about the DataFrame
         st.markdown("#### Statistiques pour les colonnes numériques:")
         st.table(df.describe(include=[np.number]))
-    except:
+    except Exception:
         st.markdown("Pas de données numériques dans le DataFrame.")
 
     try:
@@ -82,13 +82,13 @@ def analyze_dataframe(df, missing_percent_threshold=1):
 
         st.markdown("Colonnes avec une unique valeur (par exemple tout à 0):")
         st.write(unique_bool[unique_bool <= 1])
-    except:
+    except Exception:
         st.markdown("Pas de données catégorielles dans le DataFrame.")
 
     try:
         st.markdown("#### Statistiques pour les colonnes date:")
         st.table(df.describe(include=[np.datetime64]))
-    except:
+    except Exception:
         st.markdown("Pas de données de type date dans le DataFrame.")
 
     # Display the number of missing values in each column
@@ -188,7 +188,7 @@ def clean_datetime_columns(df):
 
     try:
         df[date_columns] = pd.to_datetime(df[date_columns], errors="coerce")
-    except:
+    except Exception:
         print("WARNING: fail to convert datetime")
 
     # df = df.dropna(subset=date_columns)
@@ -256,7 +256,7 @@ def clean_numerical_columns(df):
         )  # Non réalisable toux incoercible, asthénie
         df["Pq G/L"] = df["Pq G/L"].replace(r"(?i)Agreg[ée]e?s?", np.nan, regex=True)
 
-    except:
+    except Exception:
         pass
 
     for col in columns_float:
@@ -269,7 +269,7 @@ def clean_numerical_columns(df):
             "Charlson (formule, non ajusté âge)"
         ].astype("Int16")
         df["Dyspnée NYHA (0 à 4)"] = df["Dyspnée NYHA (0 à 4)"].astype("Int16")
-    except:
+    except Exception:
         pass
 
     return df
@@ -401,8 +401,8 @@ def test_y_quali_X_quanti(df: pd.DataFrame, _test_stat, target_col: str, alpha=0
         _type_: _description_
     """
     # Séparation des données en fonction de la colonne cible
-    positive_df = df[df[target_col] == True]
-    negative_df = df[df[target_col] == False]
+    positive_df = df[df[target_col] is True]
+    negative_df = df[df[target_col] is False]
 
     # Échantillonnage équilibré du groupe négatif pour avoir la même taille que le groupe positif
     balanced_neg = negative_df.sample(positive_df.shape[0])
@@ -510,29 +510,25 @@ def accueil():
     st.markdown(
         """
         Cette application facilite l'analyse de données médicales au format Excel, avec un focus sur les exacerbations liées à la Fibrose Pulmonaire Idiopathique (FPI). Plusieurs types d'analyses sont disponibles :
-        # 📊 Analyse de la structure des données
-
-        Cet onglet permet d'explorer la structure des données :
+        ## 📊 Analyse de la forme des données
 
         * Identification des types de données (numérique, catégoriel, etc.)
-        * Détection des valeurs manquantes et anomalies éventuelles
+        * Détection des valeurs manquantes et anomalies
         * Résumé statistique des variables
 
-        # 📈 Analyse graphique
+        ## 📈 Analyse de distribution et croisé en fonction de la variable catégorielle observée.
 
-        Explorez visuellement la distribution des données en fonction de variables clés, notamment les exacerbations de la FPI. Cet onglet propose :
-
-        * Histogrammes et boxplots
-        * Répartition par catégories
-        * Comparaisons entre variables
-
-        # 🎨 Visualisation libre
+        ## 🎨 Visualisation libre
 
         Un espace interactif pour créer vos propres graphiques. Vous pouvez :
 
-        * Tracer des courbes ou scatter plots
+        * Tracer des courbes
         * Sélectionner et croiser les variables selon vos besoins
         * Personnaliser les options d'affichage
+        
+        ## 📉 Prédictions des exacerbations FP
+        Ci-dessous, vous pouvez saisir les données d'un patient pour prédire le risque d'exacerbations de la FPI.
+        
         """
     )
 
@@ -549,7 +545,6 @@ def predict_fpi(df):
         )
 
     # Predict the target variable
-    y_pred = model.predict(df)
     y_pred_proba = model.predict_proba(df)
 
     return y_pred_proba

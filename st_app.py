@@ -13,7 +13,6 @@ options_vues = {
     "distribution": "Distribution variables continues",
     "repartition": "Répartition variables catégorielles",
     "libres": "Analyses libres",
-    "survie": "Courbes de survie",
     "pred": "Prédictions FPI",
 }
 
@@ -139,9 +138,6 @@ if uploaded_file is not None:
             )
             pyg_app = StreamlitRenderer(df.select_dtypes(exclude=["object"]))
             pyg_app.explorer()
-
-        elif sb_mode == options_vues["survie"]:
-            st.title(options_vues["survie"])
 
         elif sb_mode == options_vues["pred"]:
             st.title(options_vues["pred"])
