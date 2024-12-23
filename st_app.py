@@ -2,22 +2,18 @@ import streamlit as st
 from functions import *
 from pygwalker.api.streamlit import StreamlitRenderer
 
-# st.set_page_config(
-#    page_title="Accueil appli",
-#    page_icon="🔍",
-# )
-
 st.set_page_config(page_title="Analyses des données FPI", page_icon="📈", layout="wide")
 
 # https://docs.streamlit.io/develop/concepts/multipage-apps/pages-directory
 
 options_vues = {
-    "option0": "Accueil",
-    "option1": "Analyse de forme des données",
-    "option2": "Analyse graphique",
-    "option3": "Analyses libres",
-    "option4": "Courbes de survie",
-    "option5": "Prédictions FPI",
+    "accueil": "Accueil",
+    "forme": "Analyse de forme des données",
+    "distribution": "Distribution variables continues",
+    "repartition": "Répartition variables catégorielles",
+    "libres": "Analyses libres",
+    "survie": "Courbes de survie",
+    "pred": "Prédictions FPI",
 }
 
 
@@ -63,22 +59,23 @@ if uploaded_file is not None:
 
         # Exécutez l'affichage en fonction du mode sélectionné
 
-        if sb_mode == options_vues["option0"]:
+        if sb_mode == options_vues["accueil"]:
             st.title(
                 f"Accueil Application d'analyses et de prédictions des exacerbations FPI"
             )
 
             accueil()
 
-        if sb_mode == options_vues["option1"]:
-            st.title(options_vues["option1"])
+        if sb_mode == options_vues["forme"]:
+            st.title(options_vues["forme"])
             st.markdown(
                 """ Analysez les données des exacerbations de la Fibrose Pulmonaire Idiopathique (FPI)
                 """
             )
             analyze_dataframe(df)
-        elif sb_mode == options_vues["option2"]:
-            st.title(options_vues["option1"])
+            
+        elif sb_mode == options_vues["distribution"]:
+            st.title(options_vues["forme"])
 
             selection = df.select_dtypes(exclude=["number", "datetime"]).columns
             sb_var_to_plot = st.selectbox(
@@ -91,8 +88,8 @@ if uploaded_file is not None:
                     f"Variables numériques suivant la variable catégorielle {sb_var_to_plot}"
                 )
 
-                st.write("Test de Student")
-                sl_pvalue_quanti = st.slider("pvalue", 0.01, 0.1, 0.05)
+                st.write("## Test de Student")
+                sl_pvalue_quanti = st.slider("pvalue_quanti", 0.01, 0.1, 0.05)
 
                 df_y_quali_X_quanti = test_y_quali_X_quanti(
                     df,
@@ -103,13 +100,24 @@ if uploaded_file is not None:
                 st.write(df_y_quali_X_quanti)
 
                 plot_numerical_data_streamlit(df, sb_var_to_plot)
+                
+        elif sb_mode == options_vues["repartition"]:
+            st.title(options_vues["forme"])
+
+            selection = df.select_dtypes(exclude=["number", "datetime"]).columns
+            sb_var_to_plot = st.selectbox(
+                "Variable catégorielle à visualiser (maladie 0/1...)",
+                selection,
+            )
+
+            if sb_var_to_plot is not None:
 
                 st.header(
                     f"Variables catégorielles suivant la variable catégorielle {sb_var_to_plot}"
                 )
 
                 st.write("Test du Chi2")
-                sl_pvalue_quali = st.slider("pvalue", 0.01, 0.1, 0.05)
+                sl_pvalue_quali = st.slider("pvalue_quali", 0.01, 0.1, 0.05)
 
                 df_y_quali_X_quali = test_y_quali_X_quali(
                     df.select_dtypes(include=["boolean"]),
@@ -121,8 +129,8 @@ if uploaded_file is not None:
 
                 plot_crosstab_streamlit(df, sb_var_to_plot)
 
-        elif sb_mode == options_vues["option3"]:
-            st.title(options_vues["option3"])
+        elif sb_mode == options_vues["libres"]:
+            st.title(options_vues["libres"])
 
             st.markdown(
                 """
@@ -132,11 +140,11 @@ if uploaded_file is not None:
             pyg_app = StreamlitRenderer(df.select_dtypes(exclude=["object"]))
             pyg_app.explorer()
 
-        elif sb_mode == options_vues["option4"]:
-            st.title(options_vues["option4"])
+        elif sb_mode == options_vues["survie"]:
+            st.title(options_vues["survie"])
 
-        elif sb_mode == options_vues["option5"]:
-            st.title(options_vues["option5"])
+        elif sb_mode == options_vues["pred"]:
+            st.title(options_vues["pred"])
 
             selected_features = [
                 "BAI",
@@ -156,8 +164,8 @@ if uploaded_file is not None:
 
             # Initialisation du DataFrame éditable avec colonnes numériques par défaut
             df_editable = pd.DataFrame(
-                data={col: pd.Series(dtype=float) for col in selected_features}, 
-                index=range(num_rows)
+                data={col: pd.Series(dtype=float) for col in selected_features},
+                index=range(num_rows),
             )
 
             # Configuration des colonnes en fonction de leurs types
