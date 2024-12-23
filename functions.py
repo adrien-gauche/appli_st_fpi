@@ -402,8 +402,8 @@ def test_y_quali_X_quanti(df: pd.DataFrame, _test_stat, target_col: str, alpha=0
         _type_: _description_
     """
     # Séparation des données en fonction de la colonne cible
-    positive_df = df[df[target_col]] # True
-    negative_df = df[~df[target_col]] # False
+    positive_df = df[df[target_col]]  # True
+    negative_df = df[~df[target_col]]  # False
 
     # Échantillonnage équilibré du groupe négatif pour avoir la même taille que le groupe positif
     balanced_neg = negative_df.sample(positive_df.shape[0])
@@ -619,7 +619,7 @@ def prediction_window() -> None:
     )
 
     st.markdown(
-    """
+        """
     ## 🤖 Prédictions des exacerbations FPI
     """
     )
@@ -648,10 +648,13 @@ def prediction_window() -> None:
                 La figure illustre la contribution des variables du modèle pour ajuster la valeur de base (moyenne calculée sur l'ensemble du jeu de données d'entraînement) vers la valeur prédite pour un exemple donné. Les variables qui augmentent la prédiction sont représentées en rouge tandis que celles qui la diminuent sont en bleu ([lien article](https://www.nature.com/articles/s42256-019-0138-9.epdf) ).
                 """
     )
-    st.image(
-        "assets/exacerbations/features_importances.png",
-        caption="Importance des features",
-    )
+    try:
+        st.image(
+            "assets/exacerbations/features_importances.png",
+            caption="Importance des features",
+        )
+    except Exception as e:
+        st.error(f"Erreur lors de l'affichage de l'image : {e}")
 
     st.markdown(
         """
@@ -660,9 +663,12 @@ def prediction_window() -> None:
                 Une précision élevée est obtenue avec peu de faux positifs dans les résultats prédits, et un rappel (recall) élevé est obtenu en ayant peu de faux négatifs [explication sklearn](https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html).
                 """
     )
-    st.image(
-        "assets/exacerbations/precision_threshold.png", caption="Seuil de précision"
-    )
+    try:
+        st.image(
+            "assets/exacerbations/precision_threshold.png", caption="Seuil de précision"
+        )
+    except Exception as e:
+        st.error(f"Erreur lors de l'affichage de l'image : {e}")
 
     st.markdown(
         """
@@ -671,4 +677,7 @@ def prediction_window() -> None:
                 La courbe ROC, est un graphique qui illustre les performances d'un système de classification binaire lorsque son seuil de discrimination varie. Elle est créée en traçant la fraction des vrais positifs parmi les positifs (TPR = taux de vrais positifs) par rapport à la fraction des faux positifs parmi les négatifs (FPR = taux de faux positifs), à différents seuils [explication ROC](https://scikit-learn.org/stable/modules/model_evaluation.html#receiver-operating-characteristic-roc)
                 """
     )
-    st.image("assets/exacerbations/ROC.png", caption="Courbe ROC")
+    try:
+        st.image("assets/exacerbations/ROC.png", caption="Courbe ROC")
+    except Exception as e:
+        st.error(f"Erreur lors de l'affichage de l'image : {e}")
