@@ -517,16 +517,13 @@ def accueil():
         * Détection des valeurs manquantes et anomalies
         * Résumé statistique des variables
 
-        ## 📈 Analyse de distribution et croisé en fonction de la variable catégorielle observée.
-
+        ## 📈 Analyse de distribution et croisé
+        
+        Analyse en fonction d'une variable cible catégorielle (exacerbation FPI oui ou non)
+        
         ## 🎨 Visualisation libre
 
-        Un espace interactif pour créer vos propres graphiques. Vous pouvez :
-
-        * Tracer des courbes
-        * Sélectionner et croiser les variables selon vos besoins
-        * Personnaliser les options d'affichage
-        
+        Un espace interactif pour créer vos propres graphiques
         """
     )
 
@@ -643,9 +640,11 @@ def prediction_window() -> None:
             except Exception as e:
                 st.error(f"Une erreur est survenue lors de la prédiction : {e}")
 
-    st.markdown("### Explication du modèle")
-    st.markdown(
-        """
+    st.markdown("""
+                ### Explicabilité du modèle
+                
+                Ce modéle est basé sur un ensemble d'arbres de décision [XGBoost](https://xgboost.readthedocs.io/en/latest/tutorials/model.html). Il est capable de prédire les exacerbations de la Fibrose Pulmonaire Idiopathique (FPI) en fonction de plusieurs variables médicales.
+                
                 - **Importance des variables** : Le score de dyspnée NYHA (essoufflement) et l'indice de comorbidité de Charlson jouent un rôle déterminant dans la prédiction des exacerbations. Par conséquent, ces deux indices déjà utilisés sont pertinents pour anticiper les exacerbations. Ce modèle affine légèrement la prédiction.
                 
                 La figure illustre la contribution des variables du modèle pour ajuster la valeur de base (moyenne calculée sur l'ensemble du jeu de données d'entraînement) vers la valeur prédite pour un exemple donné. Les variables qui augmentent la prédiction sont représentées en rouge tandis que celles qui la diminuent sont en bleu ([lien article](https://www.nature.com/articles/s42256-019-0138-9.epdf) ).

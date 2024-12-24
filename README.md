@@ -9,6 +9,7 @@ python run.py
 ## Build
 
 ```bash
+conda activate st_app
 pyinstaller --onefile --additional-hooks-dir=./hooks run.py --clean
 pyinstaller run.spec --clean
 ```

@@ -26,7 +26,7 @@ options_vues = {
     "distribution": "Distribution variables continues",
     "repartition": "Répartition variables catégorielles",
     "libres": "Affichages libres",
-    "pred": "Prédictions FPI",
+    "pred": "Prédictions des exacerbations FPI",
 }
 
 
@@ -163,9 +163,9 @@ if uploaded_file is not None:
 else:
     st.title("Accueil Application d'analyses et de prédictions des exacerbations FPI")
 
+    st.title(options_vues["pred"])
+    prediction_window()
+
     st.info("Veuillez charger un fichier Excel à gauche pour continuer.")
 
     accueil()
-
-    st.title(options_vues["pred"])
-    prediction_window()
