@@ -9,7 +9,6 @@ import seaborn as sns
 import streamlit as st
 from sklearn.compose import make_column_selector
 
-
 pd.set_option("future.no_silent_downcasting", True)
 
 
@@ -569,41 +568,43 @@ def prediction_window() -> None:
             "BAI",
             format="%.2f",
             min_value=0,
-            max_value=100,  # Ajustez selon la plage attendue
+            max_value=40,  # Ajustez selon la plage attendue
+            help="Bio-impédancemétrie",
         ),
         "Charlson (formule, non ajusté âge)": st.column_config.NumberColumn(
             "Charlson (formule, non ajusté âge)",
-            format="%.2f",
+            format="%.0f",
             min_value=0,
-            help="Indice de comorbidité de Charlson non ajusté à l'âge.",
+            max_value=7,
+            help="Indice de comorbidité de Charlson non ajusté à l'âge",
         ),
         "IDM 0/1": st.column_config.NumberColumn(
             "IDM 0/1",
             format="%.0f",
             min_value=0,
             max_value=1,  # Valeurs binaires
-            help="Indicateur binaire : 0 pour absence, 1 pour présence d'infarctus du myocarde.",
+            help="0 pour absence, 1 pour présence d'infarctus du myocarde",
         ),
         "Taille (m)": st.column_config.NumberColumn(
             "Taille (m)",
             format="%.2f",
             min_value=1.0,
             max_value=2.5,  # Taille humaine réaliste
-            help="Taille en mètres (valeurs entre 1.0 et 2.5).",
+            help="Taille en mètres (valeurs entre 1.0 et 2.5)",
         ),
         "Dyspnée NYHA (0 à 4)": st.column_config.NumberColumn(
             "Dyspnée NYHA (0 à 4)",
             format="%.0f",
             min_value=0,
             max_value=4,  # Scores de 0 à 4
-            help="Score NYHA (0 : pas de dyspnée, 4 : dyspnée sévère).",
+            help="Classification de l'insuffisance cardiaque et de l'essouflement (0 : pas de dyspnée, 4 : dyspnée sévère)",
         ),
         "PA (uniquement si tabac)": st.column_config.NumberColumn(
             "PA (uniquement si tabac)",
-            format="%.2f",
+            format="%.0f",
             min_value=0,
             max_value=100,  # Ajustez selon les données attendues
-            help="Nombre de paquets-années, uniquement si le patient est fumeur.",
+            help="Nombre de paquets-années, uniquement si le patient est fumeur",
         ),
     }
 
@@ -629,7 +630,7 @@ def prediction_window() -> None:
                 df_pred = predict_fpi(edited_df)
                 st.success("Prédictions effectuées avec succès !")
 
-                #for i, prob in enumerate(df_pred[:, 1]):
+                # for i, prob in enumerate(df_pred[:, 1]):
                 #    st.write(
                 #        f"Patient {i + 1}: **{prob * 100:.2f}%** probabilité d'exacerbation FPI"
                 #    )
@@ -648,19 +649,18 @@ def prediction_window() -> None:
                 - **Importance des variables** : Le score de dyspnée NYHA (essoufflement) et l'indice de comorbidité de Charlson jouent un rôle déterminant dans la prédiction des exacerbations. Par conséquent, ces deux indices déjà utilisés sont pertinents pour anticiper les exacerbations. Ce modèle affine légèrement la prédiction.
                 
                 La figure illustre la contribution des variables du modèle pour ajuster la valeur de base (moyenne calculée sur l'ensemble du jeu de données d'entraînement) vers la valeur prédite pour un exemple donné. Les variables qui augmentent la prédiction sont représentées en rouge tandis que celles qui la diminuent sont en bleu ([lien article](https://www.nature.com/articles/s42256-019-0138-9.epdf) ).
-                """
-    )
+                """)
     try:
         st.image(
             "assets/exacerbations/features_importances.png",
             caption="Importance des features",
         )
-        
-    except Exception as e:
-        #st.error(f"Erreur lors de l'affichage de l'image : {e}")
+
+    except Exception:
+        # st.error(f"Erreur lors de l'affichage de l'image : {e}")
         st.image(
-        "https://adrien-gauche.github.io/portfolio/assets/exacerbations/features_importances.png",
-        caption="Importance des features",
+            "https://adrien-gauche.github.io/portfolio/assets/exacerbations/features_importances.png",
+            caption="Importance des features",
         )
 
     st.markdown(
@@ -674,8 +674,8 @@ def prediction_window() -> None:
         st.image(
             "assets/exacerbations/precision_threshold.png", caption="Seuil de précision"
         )
-    except Exception as e:
-        #st.error(f"Erreur lors de l'affichage de l'image : {e}")
+    except Exception:
+        # st.error(f"Erreur lors de l'affichage de l'image : {e}")
         st.image(
             "https://adrien-gauche.github.io/portfolio/assets/exacerbations/precision_threshold.png",
             caption="Importance des features",
@@ -690,8 +690,8 @@ def prediction_window() -> None:
     )
     try:
         st.image("assets/exacerbations/ROC.png", caption="Courbe ROC")
-    except Exception as e:
-        #st.error(f"Erreur lors de l'affichage de l'image : {e}")
+    except Exception:
+        # st.error(f"Erreur lors de l'affichage de l'image : {e}")
         st.image(
             "https://adrien-gauche.github.io/portfolio/assets/exacerbations/ROC.png",
             caption="Importance des features",
