@@ -1,4 +1,4 @@
-streamlit==1.40.1
+streamlit==1.54.0
 pandas==2.2.2
 pygwalker==0.4.9.13
 pyinstaller
