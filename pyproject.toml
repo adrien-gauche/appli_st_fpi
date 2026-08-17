@@ -1,0 +1,18 @@
+[project]
+name = "appli_st_fpi"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "streamlit",
+    "pandas",
+    "pygwalker",
+    "pyinstaller",
+    "scikit-learn",
+    "matplotlib",
+    "numpy",
+    "plotly",
+    "seaborn",
+    "joblib",
+    "xgboost-cpu",
+]
