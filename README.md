@@ -3,23 +3,11 @@
 Voir l'application ici: https://fpi-appli.onrender.com/
 
 ```bash
-python run.py
+uv run run.py
 ```
 
 ## Build
 
 ```bash
-conda activate st_app
-pyinstaller --onefile --additional-hooks-dir=./hooks run.py --clean
-pyinstaller run.spec --clean
-```
-
-## Config
-
-```bash
-conda env create -f environment.yaml
-```
-
-```bash
-conda remove -n ENV_NAME --all
+uv build st_app
 ```
