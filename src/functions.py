@@ -424,7 +424,7 @@ def test_y_quali_X_quanti(df: pd.DataFrame, _test_stat, target_col: str, alpha=0
 
             # Vérifier si l'hypothèse nulle est rejetée
             result_str = (
-                f"H0 Rejetée avec un risque d'erreur <{alpha*100}%"
+                f"H0 Rejetée avec un risque d'erreur <{alpha * 100}%"
                 if pvalue < alpha
                 else "H0 Accepté, moyennes égales"
             )
@@ -480,7 +480,7 @@ def test_y_quali_X_quali(df: pd.DataFrame, _test_stat, target_col: str, alpha=0.
 
             # Vérifier si l'hypothèse nulle est rejetée
             result_str = (
-                f"H0 Rejetée avec un risque d'erreur <{alpha*100}%"
+                f"H0 Rejetée avec un risque d'erreur <{alpha * 100}%"
                 if pvalue < alpha
                 else "H0 Accepté, variables indépendantes"
             )

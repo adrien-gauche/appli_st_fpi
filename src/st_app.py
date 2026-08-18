@@ -1,8 +1,7 @@
-import scipy.stats as stats
 import streamlit as st
 from pygwalker.api.streamlit import StreamlitRenderer
+from scipy import stats
 
-#from functions import *
 from functions import (
     accueil,
     analyze_dataframe,
