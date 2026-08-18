@@ -1,6 +1,6 @@
+import importlib
 import re
 
-import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -21,7 +21,7 @@ def get_sheet_names(uploaded_file):
         excel_file = pd.ExcelFile(uploaded_file)
         sheet_names = excel_file.sheet_names
 
-    except Exception as e:
+    except (ImportError, OSError, ValueError) as e:
         print(f"Error: {e}")
 
     return sheet_names
@@ -34,7 +34,7 @@ def load_pandas_data(uploaded_file, sheet_selected):
     try:
         data = pd.read_excel(uploaded_file, sheet_name=sheet_selected)
 
-    except Exception as e:
+    except (ImportError, OSError, TypeError, ValueError) as e:
         print(f"Error: {e}")
 
     return data
@@ -66,7 +66,7 @@ def analyze_dataframe(df, missing_percent_threshold=1):
         # Display statistical details about the DataFrame
         st.markdown("#### Statistiques pour les colonnes numériques:")
         st.table(df.describe(include=[np.number]))
-    except Exception:
+    except (TypeError, ValueError):
         st.markdown("Pas de données numériques dans le DataFrame.")
 
     try:
@@ -82,13 +82,13 @@ def analyze_dataframe(df, missing_percent_threshold=1):
 
         st.markdown("Colonnes avec une unique valeur (par exemple tout à 0):")
         st.write(unique_bool[unique_bool <= 1])
-    except Exception:
+    except (TypeError, ValueError):
         st.markdown("Pas de données catégorielles dans le DataFrame.")
 
     try:
         st.markdown("#### Statistiques pour les colonnes date:")
         st.table(df.describe(include=[np.datetime64]))
-    except Exception:
+    except (TypeError, ValueError):
         st.markdown("Pas de données de type date dans le DataFrame.")
 
     # Display the number of missing values in each column
@@ -156,11 +156,17 @@ def regex_column_selector(df, regex_list):
 @st.cache_data
 def clean_text_abreviation(
     df,
-    nan_names=["NR", "ND", "NC", "HR", "°", "Inconnu", "décès\\?\\?\\?"],
-    true_names=["ok", "oui"],
-    false_names=["non", "no", "refus"],
+    nan_names=None,
+    true_names=None,
+    false_names=None,
 ):
     # construct the insensitive case regex pattern
+    if false_names is None:
+        false_names = ["non", "no", "refus"]
+    if true_names is None:
+        true_names = ["ok", "oui"]
+    if nan_names is None:
+        nan_names = ["NR", "ND", "NC", "HR", "°", "Inconnu", "décès\\?\\?\\?"]
     nan_pattern = r"(?i)\s*(" + "|".join(nan_names) + r")\s*"
     # Replacement by NaN
     df = df.replace(nan_pattern, np.nan, regex=True)
@@ -188,7 +194,7 @@ def clean_datetime_columns(df):
 
     try:
         df[date_columns] = pd.to_datetime(df[date_columns], errors="coerce")
-    except Exception:
+    except (KeyError, TypeError, ValueError):
         print("WARNING: fail to convert datetime")
 
     # df = df.dropna(subset=date_columns)
@@ -199,11 +205,15 @@ def clean_datetime_columns(df):
 @st.cache_data
 def clean_boolean_columns(
     df,
-    regex_bool=[r"0/1", r"=1", r"1=", r"≥ 1"],
-    bool_cols=[],
+    regex_bool=None,
+    bool_cols=None,
 ):
     # Identify columns to convert to boolean by checking column names for specific patterns
 
+    if bool_cols is None:
+        bool_cols = []
+    if regex_bool is None:
+        regex_bool = [r"0/1", r"=1", r"1=", r"≥ 1"]
     bool_columns = regex_column_selector(df, regex_bool)
 
     # Append additional columns directly
@@ -247,36 +257,32 @@ def clean_numerical_columns(df):
         r"^(\d+),{0,1}[^0-9.,],{0,1}(\d+)", r"\1.\2", regex=True
     )
 
-    try:
-        df[columns_float] = df[columns_float].replace(
-            r"Non réalisable\w*", np.nan, regex=True
-        )  # Non réalisable toux incoercible, asthénie
-        df[columns_float] = df[columns_float].replace(
-            r"Quantité insuffisante\w*", np.nan, regex=True
-        )  # Non réalisable toux incoercible, asthénie
+    df[columns_float] = df[columns_float].replace(
+        r"Non réalisable\w*", np.nan, regex=True
+    )  # Non réalisable toux incoercible, asthénie
+    df[columns_float] = df[columns_float].replace(
+        r"Quantité insuffisante\w*", np.nan, regex=True
+    )  # Non réalisable toux incoercible, asthénie
+    if "Pq G/L" in df:
         df["Pq G/L"] = df["Pq G/L"].replace(r"(?i)Agreg[ée]e?s?", np.nan, regex=True)
-
-    except Exception:
-        pass
 
     for col in columns_float:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    try:
-        df["Score GAP"] = df["Score GAP"].astype("Int16")
-        df["EA nombre\nsi EA"] = df["EA nombre\nsi EA"].astype("Int16")
-        df["Charlson (formule, non ajusté âge)"] = df[
-            "Charlson (formule, non ajusté âge)"
-        ].astype("Int16")
-        df["Dyspnée NYHA (0 à 4)"] = df["Dyspnée NYHA (0 à 4)"].astype("Int16")
-    except Exception:
-        pass
+    integer_columns = [
+        "Score GAP",
+        "EA nombre\nsi EA",
+        "Charlson (formule, non ajusté âge)",
+        "Dyspnée NYHA (0 à 4)",
+    ]
+    for col in set(integer_columns).intersection(df.columns):
+        df[col] = df[col].astype("Int16")
 
     return df
 
 
 @st.cache_data
-def clean_data(df, bool_cols=[]):
+def clean_data(df, bool_cols=None):
     """Clean the DataFrame by replacing specific values with np.nan, converting to datetime, and cleaning boolean columns.
 
     Args:
@@ -287,6 +293,8 @@ def clean_data(df, bool_cols=[]):
         _type_: _description_
     """
 
+    if bool_cols is None:
+        bool_cols = []
     df = clean_text_abreviation(df)
     df = clean_datetime_columns(df)
     df = clean_boolean_columns(df, bool_cols=bool_cols)
@@ -380,7 +388,7 @@ def plot_crosstab_streamlit(df, target):
 
             # Afficher dans Streamlit
             st.pyplot(fig)
-        except Exception as e:
+        except (KeyError, TypeError, ValueError) as e:
             st.error(f"Erreur avec {col}: {e}")
 
 
@@ -476,7 +484,7 @@ def test_y_quali_X_quali(df: pd.DataFrame, _test_stat, target_col: str, alpha=0.
         if col != target_col:  # On ignore la colonne cible
             obs = pd.crosstab(df[target_col], df[col])
             # Effectuer le test pour chaque colonne
-            statistic, pvalue, dof, expected_freq = _test_stat(obs, correction=False)
+            statistic, pvalue, _dof, _expected_freq = _test_stat(obs, correction=False)
 
             # Vérifier si l'hypothèse nulle est rejetée
             result_str = (
@@ -532,7 +540,14 @@ def predict_fpi(df):
     # Load the pre-trained model
     model_file = "fpi.joblib"
     try:
+        # Import lazily so the rest of the application can run without the
+        # optional model-loading dependency installed.
+        joblib = importlib.import_module("joblib")
         model = joblib.load(model_file)
+    except ModuleNotFoundError as e:
+        raise RuntimeError(
+            "The 'joblib' package is required to load the prediction model."
+        ) from e
     except FileNotFoundError:
         raise RuntimeError(
             f"Model file {model_file} not found. Please ensure the model file exists in the current directory."
@@ -638,7 +653,7 @@ def prediction_window() -> None:
                     f"##### Probabilité **{df_pred[0, 1] * 100:.2f}%** d'exacerbation FPI"
                 )
 
-            except Exception as e:
+            except (KeyError, TypeError, ValueError, RuntimeError) as e:
                 st.error(f"Une erreur est survenue lors de la prédiction : {e}")
 
     st.markdown("""
@@ -656,7 +671,7 @@ def prediction_window() -> None:
             caption="Importance des features",
         )
 
-    except Exception:
+    except (FileNotFoundError, OSError, ValueError):
         # st.error(f"Erreur lors de l'affichage de l'image : {e}")
         st.image(
             "https://adrien-gauche.github.io/portfolio/assets/exacerbations/features_importances.png",
@@ -674,7 +689,7 @@ def prediction_window() -> None:
         st.image(
             "assets/exacerbations/precision_threshold.png", caption="Seuil de précision"
         )
-    except Exception:
+    except (FileNotFoundError, OSError, ValueError):
         # st.error(f"Erreur lors de l'affichage de l'image : {e}")
         st.image(
             "https://adrien-gauche.github.io/portfolio/assets/exacerbations/precision_threshold.png",
@@ -690,7 +705,7 @@ def prediction_window() -> None:
     )
     try:
         st.image("assets/exacerbations/ROC.png", caption="Courbe ROC")
-    except Exception:
+    except (FileNotFoundError, OSError, ValueError):
         # st.error(f"Erreur lors de l'affichage de l'image : {e}")
         st.image(
             "https://adrien-gauche.github.io/portfolio/assets/exacerbations/ROC.png",
